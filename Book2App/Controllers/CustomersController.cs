@@ -11,31 +11,24 @@ using Book2App.Repositories;
 
 namespace Book2App.Controllers
 {
-    public class BooksController : Controller
+    public class CustomersController : Controller
     {
-        private readonly IBookRepository _bookRepository;
+        private readonly ICustomerRepository _customerRepository;
 
-        public BooksController(IBookRepository bookRepository)
+        public CustomersController(ICustomerRepository customerRepository)
         {
-            _bookRepository = bookRepository;
+            _customerRepository = customerRepository;
         }
 
-        // GET: Books
+        // GET: Customers
         public async Task<IActionResult> Index()
         {
-            var books = _bookRepository.AllBooks;
-            
-            return View(await Task.Run(() => books));
+            var customers = _customerRepository.AllCustomers;
+
+            return View(await Task.Run(() => customers));
         }
 
-        // GET: Koukou
-        public string Koukou()
-        {
-            string s = "<h1>Hello</h1>";
-            return (s);
-        }
-
-        // GET: Books/Details/5
+        // GET: Customers/Details/5
         public async Task<IActionResult> Details(string id)
         {
             if (id == null)
@@ -43,38 +36,40 @@ namespace Book2App.Controllers
                 return NotFound();
             }
 
-            var book = await Task.Run(() =>
-                _bookRepository.GetBookById(id));
-            if (book == null)
+            var customer = await Task.Run(() =>
+                _customerRepository.GetCustomerById(id));
+            if (customer == null)
             {
                 return NotFound();
             }
 
-            return View(book);
+            return View(customer);
         }
 
-        // GET: Books/Create
+
+        // GET: Customers/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Books/Create
+        // POST: Customers/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to, for 
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Title,ISBN,Description")] Book book)
+        public async Task<IActionResult> Create([Bind("CustomerID,FullName")] Customer customer)
         {
             if (ModelState.IsValid)
             {
-                await Task.Run(() => _bookRepository.Create(book));
+                await Task.Run(() => _customerRepository.Create(customer));
+               
                 return RedirectToAction(nameof(Index));
             }
-            return View(book);
+            return View(customer);
         }
 
-        // GET: Books/Edit/5
+        // GET: Customers/Edit/5
         public async Task<IActionResult> Edit(string id)
         {
             if (id == null)
@@ -82,24 +77,22 @@ namespace Book2App.Controllers
                 return NotFound();
             }
 
-            var book = await Task.Run(() => _bookRepository.GetBookById(id));
-            if (book == null)
+            var customer = await Task.Run(() => _customerRepository.GetCustomerById(id)); 
+            if (customer == null)
             {
                 return NotFound();
             }
-            return View(book);
+            return View(customer);
         }
 
-        // POST: Books/Edit/5
+        // POST: Customers/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for 
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("ID,Title,ISBN,Description")] Book book)
+        public async Task<IActionResult> Edit(string id, [Bind("CustomerID,FullName")] Customer customer)
         {
-            
-            // it is not needed since we use EF Core BUT be on the safe side!!!!
-            if (id != book.ID)
+            if (id != customer.CustomerID)
             {
                 return NotFound();
             }
@@ -108,17 +101,12 @@ namespace Book2App.Controllers
             {
                 try
                 {
-                    _bookRepository.Update(book);
-                    //
+                    _customerRepository.Update(customer);
                 }
-                // 1. deleted book
-                // 2. changed id
-                catch (DbUpdateConcurrencyException)
-                {
-                    // client app (id) 
-                    // admin app (book.ID)
-                    var _book = await Task.Run(() => _bookRepository.GetBookById(book.ID));
-                    if (_book == null) 
+                catch (DbUpdateConcurrencyException) 
+                { 
+                 var _customer = await Task.Run(() => _customerRepository.GetCustomerById(customer.CustomerID));
+                if (_customer==null)
                     {
                         return NotFound();
                     }
@@ -130,10 +118,10 @@ namespace Book2App.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(book);
+            return View(customer);
         }
 
-        // GET: Books/Delete/5
+        // GET: Customers/Delete/5
         public async Task<IActionResult> Delete(string id)
         {
             if (id == null)
@@ -141,27 +129,27 @@ namespace Book2App.Controllers
                 return NotFound();
             }
 
-            var book = await Task.Run(() => _bookRepository.GetBookById(id));
-            if (book == null)
+            var customer = await Task.Run(() => _customerRepository.GetCustomerById(id));
+            if (customer == null)
             {
                 return NotFound();
             }
 
-            return View(book);
+            return View(customer);
         }
 
-        // POST: Books/Delete/5
+        // POST: Customers/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var book = await Task.Run(() => _bookRepository.Delete(id));
+            var customer = await Task.Run(() => _customerRepository.Delete(id));
             return RedirectToAction(nameof(Index));
         }
 
-        //private bool BookExists(string id)
+        //private bool CustomerExists(int id)
         //{
-        //    return _context.Book.Any(e => e.ID == id);
+        //    return _context.Customers.Any(e => e.CustomerID == id);
         //}
     }
 }
