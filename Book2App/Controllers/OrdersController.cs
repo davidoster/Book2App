@@ -11,31 +11,24 @@ using Book2App.Repositories;
 
 namespace Book2App.Controllers
 {
-    public class BooksController : Controller
+    public class OrdersController : Controller
     {
-        private readonly IBookRepository _bookRepository;
+        private readonly IOrderRepository _orderRepository;
 
-        public BooksController(IBookRepository bookRepository)
+        public OrdersController(IOrderRepository orderRepository)
         {
-            _bookRepository = bookRepository;
+            _orderRepository = orderRepository;
         }
 
-        // GET: Books
+        // GET: Orders
         public async Task<IActionResult> Index()
         {
-            var books = _bookRepository.AllBooks;
-            
-            return View(await Task.Run(() => books));
+            var orders = _orderRepository.AllOrders;
+
+            return View(await Task.Run(() => orders));
         }
 
-        // GET: Koukou
-        public string Koukou()
-        {
-            string s = "<h1>Hello</h1>";
-            return (s);
-        }
-
-        // GET: Books/Details/5
+        // GET: Orders/Details/5
         public async Task<IActionResult> Details(string id)
         {
             if (id == null)
@@ -43,38 +36,40 @@ namespace Book2App.Controllers
                 return NotFound();
             }
 
-            var book = await Task.Run(() =>
-                _bookRepository.GetBookById(id));
-            if (book == null)
+            var order = await Task.Run(() =>
+                _orderRepository.GetOrderById(id));
+            if (order == null)
             {
                 return NotFound();
             }
 
-            return View(book);
+            return View(order);
         }
 
-        // GET: Books/Create
+
+        // GET: Orders/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Books/Create
+        // POST: Orders/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to, for 
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Title,ISBN,Description")] Book book)
+        public async Task<IActionResult> Create([Bind("OrderID,BookID,CustomerID")] Order order)
         {
             if (ModelState.IsValid)
             {
-                await Task.Run(() => _bookRepository.Create(book));
+                await Task.Run(() => _orderRepository.Create(order));
+
                 return RedirectToAction(nameof(Index));
             }
-            return View(book);
+            return View(order);
         }
 
-        // GET: Books/Edit/5
+        // GET: Orders/Edit/5
         public async Task<IActionResult> Edit(string id)
         {
             if (id == null)
@@ -82,24 +77,22 @@ namespace Book2App.Controllers
                 return NotFound();
             }
 
-            var book = await Task.Run(() => _bookRepository.GetBookById(id));
-            if (book == null)
+            var order = await Task.Run(() => _orderRepository.GetOrderById(id));
+            if (order == null)
             {
                 return NotFound();
             }
-            return View(book);
+            return View(order);
         }
 
-        // POST: Books/Edit/5
+        // POST: Orders/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for 
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("ID,Title,ISBN,Description")] Book book)
+        public async Task<IActionResult> Edit(string id, [Bind("OrderID,BookID,CustomerID")] Order order)
         {
-            
-            // it is not needed since we use EF Core BUT be on the safe side!!!!
-            if (id != book.ID)
+            if (id != order.OrderID)
             {
                 return NotFound();
             }
@@ -108,17 +101,12 @@ namespace Book2App.Controllers
             {
                 try
                 {
-                    _bookRepository.Update(book);
-                    //
+                    _orderRepository.Update(order);
                 }
-                // 1. deleted book
-                // 2. changed id
                 catch (DbUpdateConcurrencyException)
                 {
-                    // client app (id) 
-                    // admin app (book.ID)
-                    var _book = await Task.Run(() => _bookRepository.GetBookById(book.ID));
-                    if (_book == null) 
+                    var _order = await Task.Run(() => _orderRepository.GetOrderById(order.OrderID));
+                    if (_order == null)
                     {
                         return NotFound();
                     }
@@ -130,10 +118,10 @@ namespace Book2App.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(book);
+            return View(order);
         }
 
-        // GET: Books/Delete/5
+        // GET: Orders/Delete/5
         public async Task<IActionResult> Delete(string id)
         {
             if (id == null)
@@ -141,27 +129,27 @@ namespace Book2App.Controllers
                 return NotFound();
             }
 
-            var book = await Task.Run(() => _bookRepository.GetBookById(id));
-            if (book == null)
+                var order = await Task.Run(() => _orderRepository.GetOrderById(id));
+                if (order == null)
             {
                 return NotFound();
             }
 
-            return View(book);
+            return View(order);
         }
 
-        // POST: Books/Delete/5
+        // POST: Orders/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var book = await Task.Run(() => _bookRepository.Delete(id));
+            var order = await Task.Run(() => _orderRepository.Delete(id));
             return RedirectToAction(nameof(Index));
         }
 
-        //private bool BookExists(string id)
+        //private bool OrderExists(string id)
         //{
-        //    return _context.Book.Any(e => e.ID == id);
+        //    return _context.Orders.Any(e => e.OrderID == id);
         //}
     }
 }
