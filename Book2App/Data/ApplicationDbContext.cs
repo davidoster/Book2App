@@ -14,5 +14,7 @@ namespace Book2App.Data
         {
         }
         public DbSet<Book2App.Models.Book> Book { get; set; }
+        public DbSet<Book2App.Models.Order> Orders { get; set; }
+        public DbSet<Book2App.Models.Customer> Customers { get; set; }
     }
 }
