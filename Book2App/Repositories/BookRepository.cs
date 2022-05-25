@@ -17,10 +17,12 @@ namespace Book2App.Repositories
 
             _context = applicationDbContext;
         }
+
         public Book GetBookById(string bookId)
         {
             return _context.Book.Find(bookId);
         }
+
         public Book Create(Book book)
         {
             Book _book = _context.Add(book).Entity;
