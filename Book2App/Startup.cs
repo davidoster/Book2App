@@ -31,7 +31,11 @@ namespace Book2App
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddIdentity<IdentityUser, IdentityRole>(
+                options => {
+                    options.SignIn.RequireConfirmedAccount = false;
+
+                })
                 //.AddDefaultUI()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.ConfigureApplicationCookie(options =>
@@ -40,7 +44,13 @@ namespace Book2App
                 options.LogoutPath = $"/Identity/Account/Logout";
                 options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
             });
-            
+            services.Configure<IdentityOptions>(options =>
+            {
+                // Default SignIn settings.
+                options.SignIn.RequireConfirmedEmail = false;
+                options.SignIn.RequireConfirmedPhoneNumber = false;
+            });
+
             //services.AddScoped<TokenProvider>(); // Azure Platform
             services.AddScoped<IBookRepository, BookRepository>();
             
