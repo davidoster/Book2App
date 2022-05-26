@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,7 +60,7 @@ namespace Book2App
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, RoleManager<IdentityRole> roleManager)
         {
             if (env.IsDevelopment())
             {
@@ -91,11 +92,20 @@ namespace Book2App
                     defaults: new { controller = "Books", action = "Create" });
                 endpoints.MapControllerRoute(name: "default",
                             pattern: "{controller=Home}/{action=Index}/{id?}");
-
-
-
                 endpoints.MapRazorPages();
             });
+            Task.Run(() => CreateAppRoles(roleManager)).Wait();
+        }
+
+        private async Task CreateAppRoles(RoleManager<IdentityRole> roleManager)
+        {
+            foreach (var configItem in this.Configuration.GetSection("Roles").Get<List<string>>())
+            {
+                if (!await roleManager.RoleExistsAsync(configItem))
+                {
+                    await roleManager.CreateAsync(new IdentityRole(configItem));
+                }
+            }
         }
     }
 }
